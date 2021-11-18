@@ -1,2 +1,6 @@
+    docker-compose up --build -d
+    docker run -it --network=musiciansfriend_scrapy_mysql_net mysql mysql -uroot -ppass -hdb
+    use quotes;
+    select * from quotes;
 /media/volgrp/myproject/git/tools/scrapy/scrapy/sehuatang/tutorial/spiders/quotes_spider.py
 ./quotes_spider/spiders/quotes_spider.py

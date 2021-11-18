@@ -16,6 +16,7 @@
 "./quotes_spider/settings.py"
 "./quotes_spider/spiders/__init__.py"
 "./quotes_spider/spiders/quotes_spider.py"
+"./readme"
 "./requirements.txt"
 "./rsync.files"
 "./scrapy.cfg"

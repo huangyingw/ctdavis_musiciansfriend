@@ -1,3 +1,2 @@
-
-    use quotes;
-    select * from quotes;
+select * 
+from quotes;

@@ -5,3 +5,60 @@ index 0000000..578bc19
 +++ ./.gitignore
 @@ -0,0 +1 @@
 +db_dir/
+diff --git a/requirements.txt b/requirements.txt
+index dbf0ecc..b1e318b 100644
+--- ./requirements.txt
++++ ./requirements.txt
+@@ -1,26 +1,26 @@
+-asn1crypto==0.24.0
+-attrs==19.1.0
+-Automat==0.7.0
+-cffi==1.12.3
+-constantly==15.1.0
+-cryptography==2.7
+-cssselect==1.0.3
+-hyperlink==19.0.0
+-idna==2.8
+-incremental==17.5.0
+-lxml==4.3.4
+-mysqlclient==1.4.2.post1
+-parsel==1.5.1
+-pyasn1==0.4.5
+-pyasn1-modules==0.2.5
+-pycparser==2.19
+-PyDispatcher==2.0.5
+-PyHamcrest==1.9.0
+-pyOpenSSL==19.0.0
+-queuelib==1.5.0
+-Scrapy==1.6.0
+-service-identity==18.1.0
+-six==1.12.0
+-Twisted==19.2.1
+-w3lib==1.20.0
+-zope.interface==4.6.0
++Automat
++PyDispatcher
++PyHamcrest
++Scrapy
++Twisted
++asn1crypto
++attrs
++cffi
++constantly
++cryptography
++cssselect
++hyperlink
++idna
++incremental
++lxml
++mysqlclient
++parsel
++pyOpenSSL
++pyasn1
++pyasn1-modules
++pycparser
++queuelib
++service-identity
++six
++w3lib
++zope.interface

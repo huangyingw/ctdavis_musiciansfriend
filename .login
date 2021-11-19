@@ -1,4 +1,5 @@
-dbinstance=
-host=
-password=
-user=
+dbinstance=quotes
+host=localhost
+password=pass
+user=root
+protocol=tcp

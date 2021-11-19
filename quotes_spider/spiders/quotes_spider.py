@@ -1,11 +1,11 @@
-from scrapy import Request, Spider
+from scrapy import Spider
 from scrapy.loader import ItemLoader
 from quotes_spider.items import QuotesSpiderItem
 
 class QuotesSpider(Spider):
     name = 'quotes'
 
-    start_urls = ['http://quotes.toscrape.com']
+    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=forumdisplay&fid=103&filter=typeid&typeid=481']
 
     def parse(self, response):
         quotes = response.xpath('//div[@class="quote"]')

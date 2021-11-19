@@ -22,6 +22,8 @@
     ignore = *.sql
     ignore = ./db_dir/*
     ignore = ./env/*
+[pull]
+    from = origin/dev
 [deploy]
 	host = localhost
 	path = ~/myproject/git/tools/ctdavis/musiciansfriend

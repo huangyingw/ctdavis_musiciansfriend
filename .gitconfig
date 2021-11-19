@@ -21,6 +21,7 @@
     ignore = *.gdio.diff
     ignore = *.sql
     ignore = ./db_dir/*
+    ignore = ./env/*
 [deploy]
 	host = localhost
 	path = ~/myproject/git/tools/ctdavis/musiciansfriend

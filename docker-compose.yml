@@ -1,14 +1,6 @@
 version: '3'
 
 services:
-  scraper:
-    build: .
-    container_name: scraper
-    ports:
-      - "5000:5000"
-    networks:
-      - scrapy_mysql_net
-    command: ["wait-for-it", "mysql:3306", "--timeout=240","--","scrapy", "crawl", "quotes"]
   db:
     image: mysql
     container_name: db
@@ -24,8 +16,6 @@ services:
     volumes:
       - ./db_dir:/var/lib/mysql
       - ./mysql-init.sql:/tmp/mysql-init.sql
-    networks:
-      - scrapy_mysql_net
     ports:
       - "3306:3306"
     expose:
@@ -33,6 +23,3 @@ services:
 
 volumes:
   db_dir:
-
-networks:
-  scrapy_mysql_net:

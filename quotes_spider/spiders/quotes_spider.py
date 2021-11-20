@@ -5,7 +5,7 @@ from quotes_spider.items import QuotesSpiderItem
 class QuotesSpider(Spider):
     name = 'quotes'
 
-    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=forumdisplay&fid=103&filter=typeid&typeid=481']
+    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=viewthread&tid=124609&highlight=Jenna%20Haze']
 
     def parse(self, response):
         movie_name = response.xpath("//*[contains(.,'影片名称')]/text()").re(r'影片名称.*：(.*)')
@@ -29,10 +29,3 @@ class QuotesSpider(Spider):
             item.add_value('magnets', magnets)
             item.add_value('link', response.url)
             yield item.load_item()
-        for href in response.css('a[href*="thread-"][onclick="atarget(this)"]::attr(href)').getall():
-            yield scrapy.Request(response.urljoin(href), self.parse)
-        for href in response.css('a[href*="forum.php?mod=viewthread"]::attr(href)').getall():
-            yield scrapy.Request(response.urljoin(href), self.parse)
-        next_page = response.xpath("//a[contains(text(), '下一页')]/@href").get()
-        if next_page:
-            yield response.follow(next_page, self.parse)

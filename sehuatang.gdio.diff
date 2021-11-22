@@ -6,10 +6,10 @@ index 0000000..578bc19
 @@ -0,0 +1 @@
 +db_dir/
 diff --git a/quotes_spider/spiders/quotes_spider.py b/quotes_spider/spiders/quotes_spider.py
-index f9881bd..d7a9006 100644
+index f9881bd..f618c67 100644
 --- ./quotes_spider/spiders/quotes_spider.py
 +++ ./quotes_spider/spiders/quotes_spider.py
-@@ -1,11 +1,11 @@
+@@ -1,22 +1,38 @@
 -from scrapy import Request, Spider
 +from scrapy import Spider
  from scrapy.loader import ItemLoader
@@ -22,7 +22,44 @@ index f9881bd..d7a9006 100644
 +    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=forumdisplay&fid=103&filter=typeid&typeid=481']
  
      def parse(self, response):
-         quotes = response.xpath('//div[@class="quote"]')
+-        quotes = response.xpath('//div[@class="quote"]')
+-        for quote in quotes:
++        movie_name = response.xpath("//*[contains(.,'影片名称')]/text()").re(r'影片名称.*：(.*)')
++        movie_name = [x.strip() for x in movie_name]
++        torrents = response.xpath('//*[contains(@href, ".torrent")]/@href').getall()
++        magnets = response.xpath("//*[contains(.,'magnet')]/text()").re(r'(magnet:.*)&.*') or response.xpath("//*[contains(.,'magnet')]/text()").re(r'(magnet:.*)')
++        actress = response.xpath("//*[contains(.,'出演女优')]/text()").re(r'出演女优.*：(.*)')
++        actress = [x.strip() for x in actress]
++        mosaic = response.xpath("//*[contains(.,'是否有码')]/text()").re(r'是否有码.*：(.*)')
++        mosaic = [x.strip() for x in mosaic]
++        size = response.xpath("//*[contains(.,'影片大小')]/text()").re(r'影片大小.*：(.*)')
++        size = [x.strip() for x in size]
++        if torrents or magnets:
+             item = ItemLoader(QuotesSpiderItem())
+-            item.add_value('quote', quote.xpath('./span[@class="text"]/text()')\
+-                    .getall())
+-            item.add_value('author', quote.xpath('./span/small[@class="author"]/text()')\
+-                    .getall())
++            item.add_value('title', response.xpath("//span[@id='thread_subject']/text()").get())
++            item.add_value('movie_name', movie_name)
++            item.add_value('actress', actress)
++            item.add_value('mosaic', mosaic)
++            item.add_value('size', size)
++            item.add_value('torrents', torrents)
++            item.add_value('magnets', magnets)
++            item.add_value('link', response.url)
+             yield item.load_item()
+-        next_page = response.xpath('//li[@class="next"]/a/@href')\
+-            .extract_first()
+-        #if next_page:
+-        #    yield Request(self.start_urls[0] + next_page)
++        for href in response.css('a[href*="thread-"][onclick="atarget(this)"]::attr(href)').getall():
++            yield scrapy.Request(response.urljoin(href), self.parse)
++        for href in response.css('a[href*="forum.php?mod=viewthread"]::attr(href)').getall():
++            yield scrapy.Request(response.urljoin(href), self.parse)
++        next_page = response.xpath("//a[contains(text(), '下一页')]/@href").get()
++        if next_page:
++            yield response.follow(next_page, self.parse)
 diff --git a/requirements.txt b/requirements.txt
 index dbf0ecc..b1e318b 100644
 --- ./requirements.txt
@@ -80,3 +117,18 @@ index dbf0ecc..b1e318b 100644
 +six
 +w3lib
 +zope.interface
+diff --git a/reset.sh b/reset.sh
+new file mode 100755
+index 0000000..8f516c2
+--- /dev/null
++++ ./reset.sh
+@@ -0,0 +1,9 @@
++#!/bin/zsh
++SCRIPT=$(realpath "$0")
++SCRIPTPATH=$(dirname "$SCRIPT")
++cd "$SCRIPTPATH"
++
++~/loadrc/dockerrc/killDockers.sh
++rm -fr ./db_dir
++docker-compose up --build -d
++watch ~/loadrc/sqlrc/xsql.sh select.sql

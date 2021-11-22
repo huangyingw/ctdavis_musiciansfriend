@@ -1,0 +1,264 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..578bc19
+--- /dev/null
++++ ./.gitignore
+@@ -0,0 +1 @@
++db_dir/
+diff --git a/docker-compose.yml b/docker-compose.yml
+index cfa2e7b..52678e2 100644
+--- ./docker-compose.yml
++++ ./docker-compose.yml
+@@ -1,14 +1,6 @@
+ version: '3'
+ 
+ services:
+-  scraper:
+-    build: .
+-    container_name: scraper
+-    ports:
+-      - "5000:5000"
+-    networks:
+-      - scrapy_mysql_net
+-    command: ["wait-for-it", "mysql:3306", "--timeout=240","--","scrapy", "crawl", "quotes"]
+   db:
+     image: mysql
+     container_name: db
+@@ -24,8 +16,6 @@ services:
+     volumes:
+       - ./db_dir:/var/lib/mysql
+       - ./mysql-init.sql:/tmp/mysql-init.sql
+-    networks:
+-      - scrapy_mysql_net
+     ports:
+       - "3306:3306"
+     expose:
+@@ -33,6 +23,3 @@ services:
+ 
+ volumes:
+   db_dir:
+-
+-networks:
+-  scrapy_mysql_net:
+diff --git a/quotes_spider/items.py b/quotes_spider/items.py
+index dabea3b..461909e 100644
+--- ./quotes_spider/items.py
++++ ./quotes_spider/items.py
+@@ -1,6 +1,13 @@
+ import scrapy
+-from scrapy.loader.processors import Join, MapCompose, TakeFirst
++from scrapy.loader.processors import TakeFirst
++
+ 
+ class QuotesSpiderItem(scrapy.Item):
+-    quote = scrapy.Field(output_processor=TakeFirst())
+-    author = scrapy.Field(output_processor=TakeFirst())
++    title = scrapy.Field(output_processor=TakeFirst())
++    movie_name = scrapy.Field(output_processor=TakeFirst())
++    actress = scrapy.Field(output_processor=TakeFirst())
++    mosaic = scrapy.Field(output_processor=TakeFirst())
++    size = scrapy.Field(output_processor=TakeFirst())
++    torrents = scrapy.Field(output_processor=TakeFirst())
++    magnets = scrapy.Field(output_processor=TakeFirst())
++    link = scrapy.Field(output_processor=TakeFirst())
+diff --git a/quotes_spider/pipelines.py b/quotes_spider/pipelines.py
+index a7b138c..c6d7694 100644
+--- ./quotes_spider/pipelines.py
++++ ./quotes_spider/pipelines.py
+@@ -2,10 +2,9 @@ import MySQLdb.cursors
+ from twisted.enterprise import adbapi
+ from pydispatch import dispatcher
+ from scrapy import signals
+-from scrapy.utils.project import get_project_settings
+ import logging
+ from quotes_spider import settings
+-from time import sleep
++
+ 
+ class QuotesSpiderPipeline(object):
+ 
+@@ -26,6 +25,7 @@ class QuotesSpiderPipeline(object):
+                                                 db=settings.MYSQL_DB,
+                                                 charset='utf8',
+                                                 use_unicode=True,
++                                                protocol='tcp',
+                                                 cursorclass=MySQLdb.cursors.DictCursor
+                                                 )
+             try:
+@@ -46,8 +46,18 @@ class QuotesSpiderPipeline(object):
+         query = self.dbpool.runInteraction(self._insert_record, item)
+         query.addErrback(self._handle_error)
+         return item
++
+     def _insert_record(self, tx, item):
+-        fields = ['quote', 'author']
++        fields = [
++            'title',
++            'movie_name',
++            'actress',
++            'mosaic',
++            'size',
++            'torrents',
++            'magnets',
++            'link'
++        ]
+         values = ['"' + item[field] + '"' for field in fields]
+         result = tx.execute(
+             """ INSERT INTO quotes ({}) VALUES ({}) """\
+diff --git a/quotes_spider/settings.py b/quotes_spider/settings.py
+index e515fd8..2cd5d81 100644
+--- ./quotes_spider/settings.py
++++ ./quotes_spider/settings.py
+@@ -17,7 +17,7 @@ NEWSPIDER_MODULE = 'quotes_spider.spiders'
+ MYSQL_PASS = 'pass'
+ MYSQL_USER = 'scraper'
+ MYSQL_DB = 'quotes'
+-MYSQL_HOST = 'db'
++MYSQL_HOST = 'localhost'
+ MYSQL_PORT = 3306
+ 
+ USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0"
+@@ -26,7 +26,7 @@ USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Fi
+ #USER_AGENT = 'quotes_spider (+http://www.yourdomain.com)'
+ 
+ # Obey robots.txt rules
+-ROBOTSTXT_OBEY = True
++ROBOTSTXT_OBEY = False
+ 
+ # Configure maximum concurrent requests performed by Scrapy (default: 16)
+ #CONCURRENT_REQUESTS = 32
+diff --git a/quotes_spider/spiders/quotes_spider.py b/quotes_spider/spiders/quotes_spider.py
+index f9881bd..4bd67ab 100644
+--- ./quotes_spider/spiders/quotes_spider.py
++++ ./quotes_spider/spiders/quotes_spider.py
+@@ -1,22 +1,31 @@
+-from scrapy import Request, Spider
++from scrapy import Spider
+ from scrapy.loader import ItemLoader
+ from quotes_spider.items import QuotesSpiderItem
+ 
+ class QuotesSpider(Spider):
+     name = 'quotes'
+ 
+-    start_urls = ['http://quotes.toscrape.com']
++    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=viewthread&tid=124609&highlight=Jenna%20Haze']
+ 
+     def parse(self, response):
+-        quotes = response.xpath('//div[@class="quote"]')
+-        for quote in quotes:
++        movie_name = response.xpath("//*[contains(.,'影片名称')]/text()").re(r'影片名称.*：(.*)')
++        movie_name = [x.strip() for x in movie_name]
++        torrents = response.xpath('//*[contains(@href, ".torrent")]/@href').getall()
++        magnets = response.xpath("//*[contains(.,'magnet')]/text()").re(r'(magnet:.*)&.*') or response.xpath("//*[contains(.,'magnet')]/text()").re(r'(magnet:.*)')
++        actress = response.xpath("//*[contains(.,'出演女优')]/text()").re(r'出演女优.*：(.*)')
++        actress = [x.strip() for x in actress]
++        mosaic = response.xpath("//*[contains(.,'是否有码')]/text()").re(r'是否有码.*：(.*)')
++        mosaic = [x.strip() for x in mosaic]
++        size = response.xpath("//*[contains(.,'影片大小')]/text()").re(r'影片大小.*：(.*)')
++        size = [x.strip() for x in size]
++        if torrents or magnets:
+             item = ItemLoader(QuotesSpiderItem())
+-            item.add_value('quote', quote.xpath('./span[@class="text"]/text()')\
+-                    .getall())
+-            item.add_value('author', quote.xpath('./span/small[@class="author"]/text()')\
+-                    .getall())
++            item.add_value('title', response.xpath("//span[@id='thread_subject']/text()").get())
++            item.add_value('movie_name', movie_name)
++            item.add_value('actress', actress)
++            item.add_value('mosaic', mosaic)
++            item.add_value('size', size)
++            item.add_value('torrents', torrents)
++            item.add_value('magnets', magnets)
++            item.add_value('link', response.url)
+             yield item.load_item()
+-        next_page = response.xpath('//li[@class="next"]/a/@href')\
+-            .extract_first()
+-        #if next_page:
+-        #    yield Request(self.start_urls[0] + next_page)
+diff --git a/quotes_spider/spiders/quotes_spider.py.sh b/quotes_spider/spiders/quotes_spider.py.sh
+new file mode 100755
+index 0000000..f2df2c3
+--- /dev/null
++++ ./quotes_spider/spiders/quotes_spider.py.sh
+@@ -0,0 +1,9 @@
++#!/bin/zsh
++
++# ~/loadrc/dockerrc/killDockers.sh
++# rm -fr ./db_dir/
++# docker-compose up --build -d
++# watch ~/loadrc/sqlrc/xsql.sh select.sql
++
++scrapy crawl quotes -O items.json
++jq . items.json | sponge items.json
+diff --git a/requirements.txt b/requirements.txt
+index dbf0ecc..b1e318b 100644
+--- ./requirements.txt
++++ ./requirements.txt
+@@ -1,26 +1,26 @@
+-asn1crypto==0.24.0
+-attrs==19.1.0
+-Automat==0.7.0
+-cffi==1.12.3
+-constantly==15.1.0
+-cryptography==2.7
+-cssselect==1.0.3
+-hyperlink==19.0.0
+-idna==2.8
+-incremental==17.5.0
+-lxml==4.3.4
+-mysqlclient==1.4.2.post1
+-parsel==1.5.1
+-pyasn1==0.4.5
+-pyasn1-modules==0.2.5
+-pycparser==2.19
+-PyDispatcher==2.0.5
+-PyHamcrest==1.9.0
+-pyOpenSSL==19.0.0
+-queuelib==1.5.0
+-Scrapy==1.6.0
+-service-identity==18.1.0
+-six==1.12.0
+-Twisted==19.2.1
+-w3lib==1.20.0
+-zope.interface==4.6.0
++Automat
++PyDispatcher
++PyHamcrest
++Scrapy
++Twisted
++asn1crypto
++attrs
++cffi
++constantly
++cryptography
++cssselect
++hyperlink
++idna
++incremental
++lxml
++mysqlclient
++parsel
++pyOpenSSL
++pyasn1
++pyasn1-modules
++pycparser
++queuelib
++service-identity
++six
++w3lib
++zope.interface
+diff --git a/reset.sh b/reset.sh
+new file mode 100755
+index 0000000..fa53216
+--- /dev/null
++++ ./reset.sh
+@@ -0,0 +1,9 @@
++#!/bin/zsh
++SCRIPT=$(realpath "$0")
++SCRIPTPATH=$(dirname "$SCRIPT")
++cd "$SCRIPTPATH"
++
++~/loadrc/dockerrc/killDockers.sh
++rm -fr ./db_dir/
++docker-compose up --build -d
++watch ~/loadrc/sqlrc/xsql.sh select.sql

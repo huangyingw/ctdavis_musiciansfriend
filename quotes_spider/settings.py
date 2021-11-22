@@ -17,7 +17,7 @@ NEWSPIDER_MODULE = 'quotes_spider.spiders'
 MYSQL_PASS = 'pass'
 MYSQL_USER = 'scraper'
 MYSQL_DB = 'quotes'
-MYSQL_HOST = 'db'
+MYSQL_HOST = 'localhost'
 MYSQL_PORT = 3306
 
 USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0"

@@ -95,3 +95,14 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+LOG_ENABLED = True
+LOG_ENCODING = 'utf-8'
+LOG_FORMATTER = 'scrapy.logformatter.LogFormatter'
+LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'
+LOG_DATEFORMAT = '%Y-%m-%d %H:%M:%S'
+LOG_STDOUT = False
+LOG_LEVEL = 'DEBUG'
+LOG_FILE = /var/log/scrapy.log
+LOG_FILE_APPEND = True
+LOG_SHORT_NAMES = False

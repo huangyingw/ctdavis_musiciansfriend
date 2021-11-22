@@ -62,7 +62,7 @@ index dabea3b..461909e 100644
 +    magnets = scrapy.Field(output_processor=TakeFirst())
 +    link = scrapy.Field(output_processor=TakeFirst())
 diff --git a/quotes_spider/pipelines.py b/quotes_spider/pipelines.py
-index a7b138c..c6d7694 100644
+index a7b138c..4a9e4d2 100644
 --- ./quotes_spider/pipelines.py
 +++ ./quotes_spider/pipelines.py
 @@ -2,10 +2,9 @@ import MySQLdb.cursors
@@ -77,15 +77,7 @@ index a7b138c..c6d7694 100644
  
  class QuotesSpiderPipeline(object):
  
-@@ -26,6 +25,7 @@ class QuotesSpiderPipeline(object):
-                                                 db=settings.MYSQL_DB,
-                                                 charset='utf8',
-                                                 use_unicode=True,
-+                                                protocol='tcp',
-                                                 cursorclass=MySQLdb.cursors.DictCursor
-                                                 )
-             try:
-@@ -46,8 +46,18 @@ class QuotesSpiderPipeline(object):
+@@ -46,8 +45,18 @@ class QuotesSpiderPipeline(object):
          query = self.dbpool.runInteraction(self._insert_record, item)
          query.addErrback(self._handle_error)
          return item

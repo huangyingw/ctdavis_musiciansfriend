@@ -4,3 +4,12 @@
     select * from quotes;
 /media/volgrp/myproject/git/tools/scrapy/scrapy/sehuatang/tutorial/spiders/quotes_spider.py
 ./quotes_spider/spiders/quotes_spider.py
+
+apt-get install libmysqlclient-dev
+pip install mysqlclient
+
+2021-11-20 22:54:20 [root] ERROR: [Failure instance: Traceback: <class 'MySQLdb._exceptions.OperationalError'>: (2002, "Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)")
+            self.dbpool = adbapi.ConnectionPool('MySQLdb',
+
+ConnectionPool Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock
+adbapi.ConnectionPool protocol

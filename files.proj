@@ -23,4 +23,4 @@
 "./scrapy.cfg"
 "./select.sql"
 "./setup.cfg"
-"clean.gdio.diff"
+"dev.gdio.diff"

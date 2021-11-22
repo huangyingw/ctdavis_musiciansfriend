@@ -2,10 +2,8 @@ import MySQLdb.cursors
 from twisted.enterprise import adbapi
 from pydispatch import dispatcher
 from scrapy import signals
-from scrapy.utils.project import get_project_settings
 import logging
 from quotes_spider import settings
-from time import sleep
 
 
 class QuotesSpiderPipeline(object):
@@ -61,6 +59,7 @@ class QuotesSpiderPipeline(object):
         ]
         values = ['"' + item[field] + '"' for field in fields]
         result = tx.execute(
+            """ INSERT INTO quotes ({}) VALUES ({}) """\
             .format(','.join(fields), ','.join(values))
         )
         if result > 0:

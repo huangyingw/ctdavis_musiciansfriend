@@ -5,6 +5,37 @@ index 0000000..578bc19
 +++ ./.gitignore
 @@ -0,0 +1 @@
 +db_dir/
+diff --git a/docker-compose.yml b/docker-compose.yml
+index cfa2e7b..448dc41 100644
+--- ./docker-compose.yml
++++ ./docker-compose.yml
+@@ -24,6 +24,7 @@ services:
+     volumes:
+       - ./db_dir:/var/lib/mysql
+       - ./mysql-init.sql:/tmp/mysql-init.sql
++      - ./var/log:/var/log
+     networks:
+       - scrapy_mysql_net
+     ports:
+diff --git a/quotes_spider/settings.py b/quotes_spider/settings.py
+index e515fd8..88ad94c 100644
+--- ./quotes_spider/settings.py
++++ ./quotes_spider/settings.py
+@@ -95,3 +95,14 @@ ITEM_PIPELINES = {
+ #HTTPCACHE_DIR = 'httpcache'
+ #HTTPCACHE_IGNORE_HTTP_CODES = []
+ #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
++
++LOG_ENABLED = True
++LOG_ENCODING = 'utf-8'
++LOG_FORMATTER = 'scrapy.logformatter.LogFormatter'
++LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'
++LOG_DATEFORMAT = '%Y-%m-%d %H:%M:%S'
++LOG_STDOUT = False
++LOG_LEVEL = 'DEBUG'
++LOG_FILE = /var/log/scrapy.log
++LOG_FILE_APPEND = True
++LOG_SHORT_NAMES = False
 diff --git a/quotes_spider/spiders/quotes_spider.py b/quotes_spider/spiders/quotes_spider.py
 index f9881bd..f618c67 100644
 --- ./quotes_spider/spiders/quotes_spider.py

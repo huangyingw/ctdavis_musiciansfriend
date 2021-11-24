@@ -18,9 +18,18 @@ index cfa2e7b..448dc41 100644
        - scrapy_mysql_net
      ports:
 diff --git a/quotes_spider/settings.py b/quotes_spider/settings.py
-index e515fd8..88ad94c 100644
+index e515fd8..cda982a 100644
 --- ./quotes_spider/settings.py
 +++ ./quotes_spider/settings.py
+@@ -26,7 +26,7 @@ USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Fi
+ #USER_AGENT = 'quotes_spider (+http://www.yourdomain.com)'
+ 
+ # Obey robots.txt rules
+-ROBOTSTXT_OBEY = True
++ROBOTSTXT_OBEY = False
+ 
+ # Configure maximum concurrent requests performed by Scrapy (default: 16)
+ #CONCURRENT_REQUESTS = 32
 @@ -95,3 +95,14 @@ ITEM_PIPELINES = {
  #HTTPCACHE_DIR = 'httpcache'
  #HTTPCACHE_IGNORE_HTTP_CODES = []
@@ -37,20 +46,21 @@ index e515fd8..88ad94c 100644
 +LOG_FILE_APPEND = True
 +LOG_SHORT_NAMES = False
 diff --git a/quotes_spider/spiders/quotes_spider.py b/quotes_spider/spiders/quotes_spider.py
-index f9881bd..f618c67 100644
+index f9881bd..a9da187 100644
 --- ./quotes_spider/spiders/quotes_spider.py
 +++ ./quotes_spider/spiders/quotes_spider.py
-@@ -1,22 +1,38 @@
+@@ -1,4 +1,4 @@
 -from scrapy import Request, Spider
 +from scrapy import Spider
  from scrapy.loader import ItemLoader
  from quotes_spider.items import QuotesSpiderItem
  
+@@ -5,18 +6,27 @@ from quotes_spider.items import QuotesSpiderItem
  class QuotesSpider(Spider):
      name = 'quotes'
  
 -    start_urls = ['http://quotes.toscrape.com']
-+    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=forumdisplay&fid=103&filter=typeid&typeid=481']
++    start_urls = ['https://rewrfsrewr.xyz/forum.php?mod=viewthread&tid=124609&highlight=Jenna%20Haze']
  
      def parse(self, response):
 -        quotes = response.xpath('//div[@class="quote"]')
@@ -84,13 +94,6 @@ index f9881bd..f618c67 100644
 -            .extract_first()
 -        #if next_page:
 -        #    yield Request(self.start_urls[0] + next_page)
-+        for href in response.css('a[href*="thread-"][onclick="atarget(this)"]::attr(href)').getall():
-+            yield scrapy.Request(response.urljoin(href), self.parse)
-+        for href in response.css('a[href*="forum.php?mod=viewthread"]::attr(href)').getall():
-+            yield scrapy.Request(response.urljoin(href), self.parse)
-+        next_page = response.xpath("//a[contains(text(), '下一页')]/@href").get()
-+        if next_page:
-+            yield response.follow(next_page, self.parse)
 diff --git a/requirements.txt b/requirements.txt
 index dbf0ecc..b1e318b 100644
 --- ./requirements.txt

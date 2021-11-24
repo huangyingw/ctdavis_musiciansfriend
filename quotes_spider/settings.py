@@ -103,6 +103,6 @@ LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'
 LOG_DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 LOG_STDOUT = False
 LOG_LEVEL = 'DEBUG'
-LOG_FILE = /var/log/scrapy.log
+LOG_FILE = '/var/log/scrapy.log'
 LOG_FILE_APPEND = True
 LOG_SHORT_NAMES = False

@@ -151,18 +151,3 @@ index dbf0ecc..b1e318b 100644
 +six
 +w3lib
 +zope.interface
-diff --git a/reset.sh b/reset.sh
-new file mode 100755
-index 0000000..8f516c2
---- /dev/null
-+++ ./reset.sh
-@@ -0,0 +1,9 @@
-+#!/bin/zsh
-+SCRIPT=$(realpath "$0")
-+SCRIPTPATH=$(dirname "$SCRIPT")
-+cd "$SCRIPTPATH"
-+
-+~/loadrc/dockerrc/killDockers.sh
-+rm -fr ./db_dir
-+docker-compose up --build -d
-+watch ~/loadrc/sqlrc/xsql.sh select.sql
